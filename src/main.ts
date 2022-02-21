@@ -1,8 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import * as nunjucks from 'nunjucks';
+import { appendFile } from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
-}
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+   const express = app.getHttpAdapter().getInstance();
+   const views = join(__dirname, '..', 'views');
+   nunjucks.configure(views, { express });
+   
+   const staticAssets = join(__dirname, '..', 'static');
+   app.useStaticAssets(staticAssets);
+   await app.listen(2000);
+}  
 bootstrap();
+
